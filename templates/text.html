@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Text Room</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+</head>
+<body>
+    <div class="chat-container">
+        <div class="chat-header">
+            Welcome, {{ username }}! You are in room: {{ room }}
+        </div>
+
+        <div id="messages" class="chat-messages"></div>
+
+        <div class="chat-input">
+            <input id="message_input" type="text" placeholder="Enter a message...">
+            <button onclick="sendMessage()">Send</button>
+        </div>
+    </div>
+
+    <script>
+        const socket = io();
+        const room = "{{ room }}";
+        const username = "{{ username }}";
+
+        // This for for how the users will get into the room
+        socket.emit('join', { username: username, room: room });
+
+        // This is for displaying the messages to the users in the current room.
+        socket.on('message', (msg) => {
+            const messagesDiv = document.getElementById('messages');
+            const messageElement = document.createElement('p');
+            messageElement.innerText = msg;
+
+            if (msg.startsWith(username)) {
+                messageElement.classList.add('user-message');
+            }
+
+            messagesDiv.appendChild(messageElement);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;  // This is for a scroll to the bottom
+        });
+
+        // This is to send a message to the server
+        function sendMessage() {
+            const messageInput = document.getElementById('message_input');
+            const message = messageInput.value;
+            socket.emit('message', { msg: message });
+            messageInput.value = '';
+        }
+    </script>
+</body>
+</html>
