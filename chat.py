@@ -1,5 +1,9 @@
+import eventlet
+eventlet.monkey_patch()
 from flask import Flask, render_template, request, redirect, session
 from flask_socketio import SocketIO, join_room, leave_room, send
+
+import eventlet.wsgi
 import random
 
 app = Flask(__name__)
@@ -41,4 +45,4 @@ def handle_message(data):
     send(f"{session['username']}: {data['msg']}", to=room)
 
 if __name__ == '__main__':
-    socketio.run(app, debug=True)
+    socketio.run(app, host='0.0.0.0', port=5000)
